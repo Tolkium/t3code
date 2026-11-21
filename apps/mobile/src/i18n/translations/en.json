@@ -5466,5 +5466,11 @@
   "ad208e3e32c85029": "Hide all",
   "3328503592789bed": "Zen",
   "856812e7e1fc445e": "Tool calls in chat",
-  "8d545d54c0a9e950": "Hide the commands, edits, and searches agents run. Hide successful keeps failures. Zen shows only final answers. Approvals, questions, and errors always show."
+  "8d545d54c0a9e950": "Hide the commands, edits, and searches agents run. Hide successful keeps failures. Zen shows only final answers. Approvals, questions, and errors always show.",
+  "038c36cd308b9763": "exit {exitCode}",
+  "90a258fff61fd77e": "Off",
+  "4cd9dae93f5c7d3b": "When expanded",
+  "83cee9c60d395ea7": "Inline",
+  "883b2b359f0fd25d": "Live terminal output",
+  "94ab3082d9cfe225": "Automatically open streaming output from the active or latest command for providers that stream terminal output. When expanded only opens it inside expanded activity; Inline also shows it while collapsed."
 }

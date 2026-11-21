@@ -512,6 +512,16 @@ export const SETTINGS_SEARCH_ITEMS = [
     ],
   },
   {
+    id: "live-command-output",
+    title: msg("Live terminal output"),
+    to: "/settings/chat",
+    searchTerms: [
+      msg(
+        "live terminal command output stream expanded inline preview shell stdout stderr running default open",
+      ),
+    ],
+  },
+  {
     id: "screen-reader-announcements",
     title: msg("Screen reader announcements"),
     to: "/settings/chat",

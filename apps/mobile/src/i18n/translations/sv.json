@@ -5464,5 +5464,11 @@
   "ad208e3e32c85029": "Dölj alla",
   "3328503592789bed": "Zen",
   "856812e7e1fc445e": "Verktygsanrop i chatten",
-  "8d545d54c0a9e950": "Dölj kommandon, redigeringar och sökningar som agenter kör. Dölj lyckade behåller misslyckanden. Zen visar bara slutliga svar. Godkännanden, frågor och fel visas alltid."
+  "8d545d54c0a9e950": "Dölj kommandon, redigeringar och sökningar som agenter kör. Dölj lyckade behåller misslyckanden. Zen visar bara slutliga svar. Godkännanden, frågor och fel visas alltid.",
+  "038c36cd308b9763": "slutkod {exitCode}",
+  "90a258fff61fd77e": "Av",
+  "4cd9dae93f5c7d3b": "När expanderad",
+  "83cee9c60d395ea7": "Infogad",
+  "883b2b359f0fd25d": "Live-terminalutdata",
+  "94ab3082d9cfe225": "Öppnar automatiskt strömmande utdata från det aktiva eller senaste kommandot för leverantörer som strömmar terminalutdata. ”När expanderad” visar den bara i expanderad aktivitet; ”Infogad” visar den även när den är ihopfälld."
 }

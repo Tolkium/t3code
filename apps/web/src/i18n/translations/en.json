@@ -12469,5 +12469,11 @@
   "b7df38b7d8792d78": "Open guide",
   "9e91e9a77b664e4e": "Could not start a review guide",
   "d8aaf932f90429c4": "Move this command to the front of the queue ({shortcut})",
-  "425ab15036aec8a4": "Move this command to the front of the queue"
+  "425ab15036aec8a4": "Move this command to the front of the queue",
+  "4cd9dae93f5c7d3b": "When expanded",
+  "83cee9c60d395ea7": "Inline",
+  "883b2b359f0fd25d": "Live terminal output",
+  "3590a821ac4e6350": "Automatically open streaming output from the active or latest command for providers that stream terminal output. When expanded only opens it inside expanded activity; Inline also shows it while collapsed.",
+  "6480ede08c324801": "Reset live terminal output to default",
+  "7acb4582fb1c9816": "live terminal command output stream expanded inline preview shell stdout stderr running default open"
 }

@@ -367,6 +367,7 @@ export interface ThreadFeedHistoryControls {
 
 export interface ThreadFeedProps {
   readonly toolCallVisibility?: ToolCallVisibility;
+  readonly liveCommandOutputMode?: import("@t3tools/contracts/settings").LiveCommandOutputMode;
   readonly worktreeSetup?: WorktreeSetupCardProps | null;
   readonly preparingWorktree?: boolean;
   readonly queuedMessages: ReadonlyArray<QueuedThreadMessage>;
@@ -1999,7 +2000,13 @@ function renderFeedEntry(
     readonly failedRunIds: ReadonlySet<RunId>;
     readonly onCopyWorkRow: (rowId: string, value: string) => void;
     readonly onToggleWorkGroup: (groupId: string, anchorKey?: string) => void;
-    readonly onToggleWorkRow: (rowId: string, anchorKey?: string, groupId?: string) => void;
+    readonly onToggleWorkRow: (
+      rowId: string,
+      anchorKey?: string,
+      groupId?: string,
+      currentlyExpanded?: boolean,
+    ) => void;
+    readonly liveCommandOutputMode: import("@t3tools/contracts/settings").LiveCommandOutputMode;
     readonly onToggleUserMessage: (rowId: string, anchorKey: string) => void;
     readonly onToggleTurnFold: (runId: RunId) => void;
     readonly onOpenTurnDiff: (checkpoint: ThreadCheckpointSummary) => void;
@@ -2193,6 +2200,8 @@ function renderFeedEntry(
         hasFailure={entry.hasFailure}
         shimmer={entry.shimmer}
         thought={entry.thought}
+        liveCommand={entry.liveCommand}
+        liveCommandOutputMode={props.liveCommandOutputMode}
         trailing={
           entry.checkpointSummary ? (
             <TurnDiffStat
@@ -2750,6 +2759,7 @@ function renderFeedEntry(
       iconSubtleColor={iconSubtleColor}
       edgeFadeColor={props.screenColor}
       themeAppearance={props.themeAppearance}
+      liveCommandOutputMode={props.liveCommandOutputMode}
       onCopyRow={props.onCopyWorkRow}
       onToggleRow={props.onToggleWorkRow}
       renderImage={props.renderViewedImage}
@@ -4151,10 +4161,15 @@ export const ThreadFeed = memo(function ThreadFeed(props: ThreadFeedProps) {
   };
 
   // Lone rows share their group's disclosure state so opened details survive a second call joining.
-  const onToggleWorkRow = (rowId: string, anchorKey?: string, groupId?: string) => {
+  const onToggleWorkRow = (
+    rowId: string,
+    anchorKey?: string,
+    groupId?: string,
+    currentlyExpanded?: boolean,
+  ) => {
     preserveDisclosurePosition(anchorKey ?? null);
     setInteractionState((current) => {
-      const expanded = !(current.expandedWorkRows[rowId] ?? false);
+      const expanded = !(currentlyExpanded ?? current.expandedWorkRows[rowId] ?? false);
       return {
         ...current,
         expandedWorkRows: { ...current.expandedWorkRows, [rowId]: expanded },
@@ -4318,6 +4333,7 @@ export const ThreadFeed = memo(function ThreadFeed(props: ThreadFeedProps) {
             onCopyWorkRow,
             onToggleWorkGroup,
             onToggleWorkRow,
+            liveCommandOutputMode: props.liveCommandOutputMode ?? "off",
             onToggleUserMessage,
             onToggleTurnFold,
             onOpenTurnDiff,

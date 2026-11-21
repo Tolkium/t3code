@@ -5458,5 +5458,11 @@
   "ad208e3e32c85029": "Ocultar todas",
   "3328503592789bed": "Zen",
   "856812e7e1fc445e": "Chamadas de ferramentas no chat",
-  "8d545d54c0a9e950": "Oculta os comandos, edições e pesquisas que os agentes executam. \"Ocultar bem-sucedidas\" mantém as falhas. Zen mostra só as respostas finais. Aprovações, perguntas e erros sempre aparecem."
+  "8d545d54c0a9e950": "Oculta os comandos, edições e pesquisas que os agentes executam. \"Ocultar bem-sucedidas\" mantém as falhas. Zen mostra só as respostas finais. Aprovações, perguntas e erros sempre aparecem.",
+  "038c36cd308b9763": "saída {exitCode}",
+  "90a258fff61fd77e": "Desativado",
+  "4cd9dae93f5c7d3b": "Quando expandido",
+  "83cee9c60d395ea7": "Em linha",
+  "883b2b359f0fd25d": "Saída de terminal ao vivo",
+  "94ab3082d9cfe225": "Abre automaticamente a saída em tempo real do comando ativo ou mais recente para provedores que transmitem saída de terminal. «Quando expandido» só mostra dentro da atividade expandida; «Em linha» também mostra quando recolhida."
 }

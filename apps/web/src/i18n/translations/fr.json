@@ -12460,5 +12460,11 @@
   "b7df38b7d8792d78": "Ouvrir le guide",
   "9e91e9a77b664e4e": "Impossible de démarrer un guide de revue",
   "d8aaf932f90429c4": "Placer cette commande en tête de la file d’attente ({shortcut})",
-  "425ab15036aec8a4": "Placer cette commande en tête de la file d’attente"
+  "425ab15036aec8a4": "Placer cette commande en tête de la file d’attente",
+  "4cd9dae93f5c7d3b": "Lorsque développé",
+  "83cee9c60d395ea7": "En ligne",
+  "883b2b359f0fd25d": "Sortie terminal en direct",
+  "3590a821ac4e6350": "Ouvre automatiquement la sortie en direct de la commande active ou la plus récente pour les fournisseurs qui diffusent la sortie du terminal. « Lorsque développé » ne l’affiche que dans l’activité développée ; « En ligne » l’affiche aussi lorsqu’elle est repliée.",
+  "6480ede08c324801": "Réinitialiser la sortie terminal en direct par défaut",
+  "7acb4582fb1c9816": "sortie terminal direct commande flux développé en ligne aperçu shell stdout stderr en cours défaut ouvert"
 }

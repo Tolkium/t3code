@@ -19,6 +19,7 @@ import {
 import {
   DEFAULT_UNIFIED_SETTINGS,
   type DiffLayout,
+  LiveCommandOutputMode,
   MAX_SIDEBAR_AUTO_SETTLE_AFTER_DAYS,
   MIN_SIDEBAR_AUTO_SETTLE_AFTER_DAYS,
   type ResponseStreamingMode,
@@ -585,6 +586,9 @@ export function useSettingsRestore(onRestored?: () => void) {
     ...(settings.toolCallVisibility !== DEFAULT_UNIFIED_SETTINGS.toolCallVisibility
       ? [gt("Tool calls in chat")]
       : []),
+    ...(settings.liveCommandOutputMode !== DEFAULT_UNIFIED_SETTINGS.liveCommandOutputMode
+      ? [gt("Live terminal output")]
+      : []),
     ...(settings.screenReaderAnnouncements !== DEFAULT_UNIFIED_SETTINGS.screenReaderAnnouncements
       ? [gt("Screen reader announcements")]
       : []),
@@ -715,6 +719,7 @@ export function useSettingsRestore(onRestored?: () => void) {
       followUpBehavior: DEFAULT_UNIFIED_SETTINGS.followUpBehavior,
       sideThreadOpenTarget: DEFAULT_UNIFIED_SETTINGS.sideThreadOpenTarget,
       toolCallVisibility: DEFAULT_UNIFIED_SETTINGS.toolCallVisibility,
+      liveCommandOutputMode: DEFAULT_UNIFIED_SETTINGS.liveCommandOutputMode,
       screenReaderAnnouncements: DEFAULT_UNIFIED_SETTINGS.screenReaderAnnouncements,
       screenReaderWindowTitle: DEFAULT_UNIFIED_SETTINGS.screenReaderWindowTitle,
       environmentIdentificationMode: DEFAULT_UNIFIED_SETTINGS.environmentIdentificationMode,
@@ -1456,6 +1461,7 @@ export function ChatSettingsPanel() {
 
       <SettingsSection id="activity" title={gt("Activity")}>
         <ToolCallVisibilityRow />
+        <LiveCommandOutputRow />
       </SettingsSection>
 
       <SettingsSection id="screen-reader" title={gt("Screen reader")}>
@@ -1513,6 +1519,67 @@ function ToolCallVisibilityRow() {
             {ToolCallVisibility.literals.map((value) => (
               <SelectItem key={value} value={value}>
                 {messages(TOOL_CALL_VISIBILITY_LABELS[value])}
+              </SelectItem>
+            ))}
+          </SelectPopup>
+        </Select>
+      }
+    />
+  );
+}
+
+const LIVE_COMMAND_OUTPUT_MODE_LABELS: Record<LiveCommandOutputMode, string> = {
+  off: msg("Off"),
+  expanded: msg("When expanded"),
+  inline: msg("Inline"),
+};
+
+const isLiveCommandOutputMode = Schema.is(LiveCommandOutputMode);
+
+function LiveCommandOutputRow() {
+  const messages = useMessages();
+  const setting = useSearchableSetting();
+  const gt = useGT();
+  const settings = useScopedSettings();
+  const updateSettings = useUpdateScopedSettings();
+  return (
+    <SettingsRow
+      {...setting("live-command-output")}
+      description={gt(
+        "Automatically open streaming output from the active or latest command for providers that stream terminal output. When expanded only opens it inside expanded activity; Inline also shows it while collapsed.",
+      )}
+      resetAction={
+        settings.liveCommandOutputMode !== DEFAULT_UNIFIED_SETTINGS.liveCommandOutputMode ? (
+          <SettingResetButton
+            ariaLabel={gt("Reset live terminal output to default")}
+            onClick={() =>
+              updateSettings({
+                liveCommandOutputMode: DEFAULT_UNIFIED_SETTINGS.liveCommandOutputMode,
+              })
+            }
+          />
+        ) : null
+      }
+      control={
+        <Select
+          value={settings.liveCommandOutputMode}
+          onValueChange={(value) => {
+            if (isLiveCommandOutputMode(value)) updateSettings({ liveCommandOutputMode: value });
+          }}
+        >
+          <SelectTrigger
+            size="sm"
+            className="w-full sm:w-40"
+            aria-label={gt("Live terminal output")}
+          >
+            <SelectValue>
+              {messages(LIVE_COMMAND_OUTPUT_MODE_LABELS[settings.liveCommandOutputMode])}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectPopup align="end" alignItemWithTrigger={false}>
+            {LiveCommandOutputMode.literals.map((value) => (
+              <SelectItem key={value} value={value}>
+                {messages(LIVE_COMMAND_OUTPUT_MODE_LABELS[value])}
               </SelectItem>
             ))}
           </SelectPopup>

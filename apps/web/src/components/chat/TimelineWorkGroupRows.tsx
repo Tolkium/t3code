@@ -61,7 +61,13 @@ import {
   toolGroupSummaryIconName,
   workEntryIconName,
 } from "./TimelineWorkEntryRow.logic";
-import { formatWorkingTimerNow } from "./TimelineWorkGroupRows.logic";
+import {
+  formatWorkingTimerNow,
+  resolveAutoExpandedCommandEntryId,
+  resolveLiveCommandPreviewEntry,
+} from "./TimelineWorkGroupRows.logic";
+import { LiveCommandOutputPreview, useCommandOutputStreaming } from "./CommandOutputPanel";
+import { useClientSettings } from "../../hooks/useSettings";
 
 export const WorkGroupSection = memo(function WorkGroupSection({
   anchorKey,
@@ -84,6 +90,7 @@ export const WorkGroupSection = memo(function WorkGroupSection({
     pendingApprovals,
   } = use(TimelineRowCtx);
   const gt = useGT();
+  const liveCommandOutputMode = useClientSettings((settings) => settings.liveCommandOutputMode);
   const nonEmptyEntries = groupedEntries.filter((entry) => {
     const item = entry.projectedItem?.item;
     return (
@@ -109,6 +116,11 @@ export const WorkGroupSection = memo(function WorkGroupSection({
     );
   }
 
+  const autoExpandedStandaloneId =
+    liveCommandOutputMode !== "off"
+      ? resolveAutoExpandedCommandEntryId(nonEmptyEntries)
+      : undefined;
+
   return (
     <section aria-label={gt("Activity")}>
       {nonEmptyEntries.map((workEntry) => (
@@ -117,6 +129,7 @@ export const WorkGroupSection = memo(function WorkGroupSection({
           workEntry={workEntry}
           workspaceRoot={workspaceRoot}
           displayLabel={displayLabel}
+          autoExpanded={workEntry.id === autoExpandedStandaloneId}
           onToggleEntry={(collapsed) =>
             onToggleWorkEntry(disclosureAnchorKey, collapsed, workEntry.id)
           }
@@ -222,10 +235,14 @@ function ExpandedWorkGroupEntries({
     });
   }
 
+  const liveCommandOutputMode = useClientSettings((settings) => settings.liveCommandOutputMode);
+  const autoExpandedEntryId =
+    liveCommandOutputMode !== "off" ? resolveAutoExpandedCommandEntryId(entries) : undefined;
   const viewedImages = useWorkGroupViewedImages(groupedEntries);
   const groupView = {
     state: viewState,
     viewedImages,
+    autoExpandedEntryId,
     onToggleEntry: (collapsed: boolean, entryId: string) =>
       onToggleWorkEntry(disclosureAnchorKey, collapsed, entryId),
     onContentReady: (entryId: string) => onWorkEntryContentReady?.(disclosureAnchorKey, entryId),
@@ -290,8 +307,12 @@ function ExpandedWorkGroupEntries({
 
   const updateExpandedContentHeight = () => {
     const state = listRef.current?.getState();
+    const expandedIds = new Set(viewState.expandedEntries);
+    if (autoExpandedEntryId && !viewState.collapsedEntries?.has(autoExpandedEntryId)) {
+      expandedIds.add(autoExpandedEntryId);
+    }
     let height = 0;
-    for (const entryId of viewState.expandedEntries) {
+    for (const entryId of expandedIds) {
       if (state?.indexByKey(entryId) === undefined) continue;
       height += Math.max(
         0,
@@ -588,6 +609,12 @@ export function LiveWorkEntryTimelineRow({
   const ctx = use(TimelineRowCtx);
   const gt = useGT();
   const m = useMessages();
+  const liveCommandOutputMode = useClientSettings((settings) => settings.liveCommandOutputMode);
+  const environmentStreamsOutput = useCommandOutputStreaming(ctx.activeThreadEnvironmentId);
+  const streamsOutput =
+    ctx.turnItemSource === undefined
+      ? environmentStreamsOutput
+      : ctx.turnItemSource.commandOutput !== undefined;
   const threadTarget = useThreadReadTarget(row.entry, ctx.activeThreadEnvironmentId);
   const label = liveWorkEntryLabel(row.entry, ctx.workspaceRoot, row.active, m);
   const threadLabel = threadReadLabel(label, row.entry, threadTarget, m);
@@ -603,86 +630,106 @@ export function LiveWorkEntryTimelineRow({
       ? liveThoughtLine((row.thought.detail ?? "").slice(0, THOUGHT_PREVIEW_SOURCE_MAX_LENGTH))
       : "";
   const thoughtIsStatus = thoughtLine !== "" && row.entry === row.thought;
+  const liveCommandEntry =
+    liveCommandOutputMode === "inline" && streamsOutput
+      ? resolveLiveCommandPreviewEntry(row)
+      : undefined;
+  const liveCommandProjected = liveCommandEntry?.projectedItem;
+  const liveCommandItem =
+    liveCommandProjected?.item.type === "command_execution" ? liveCommandProjected.item : undefined;
 
   return (
-    <button
-      type="button"
-      className={cn(
-        "group/live-work flex w-full max-w-full cursor-pointer rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/70",
-        thoughtLine ? "flex-col items-start" : "min-h-6 items-center",
-      )}
-      aria-label={
-        failed
-          ? gt("{label}, tool call failed", {
-              label: `${thoughtLine ? `${thoughtLine} ` : ""}${threadLabel?.text ?? label}`,
-            })
-          : undefined
-      }
-      aria-expanded={row.expanded}
-      onClick={() => ctx.onToggleWorkGroup(row.groupId, row.id)}
-    >
-      {thoughtLine ? (
-        <WorkLogRow
-          icon={
-            <span className="flex size-4 items-center justify-center text-icon-muted">
-              <ToolActivityIconView
-                icon={undefined}
-                fallbackName="brain"
-                className="block size-4 shrink-0 stroke-2"
-                muted
-              />
-            </span>
-          }
+    <div className="min-w-0 w-full">
+      <button
+        type="button"
+        className={cn(
+          "group/live-work flex w-full max-w-full cursor-pointer rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/70",
+          thoughtLine ? "flex-col items-start" : "min-h-6 items-center",
+        )}
+        aria-label={
+          failed
+            ? gt("{label}, tool call failed", {
+                label: `${thoughtLine ? `${thoughtLine} ` : ""}${threadLabel?.text ?? label}`,
+              })
+            : undefined
+        }
+        aria-expanded={row.expanded}
+        onClick={() => ctx.onToggleWorkGroup(row.groupId, row.id)}
+      >
+        {thoughtLine ? (
+          <WorkLogRow
+            icon={
+              <span className="flex size-4 items-center justify-center text-icon-muted">
+                <ToolActivityIconView
+                  icon={undefined}
+                  fallbackName="brain"
+                  className="block size-4 shrink-0 stroke-2"
+                  muted
+                />
+              </span>
+            }
+            label={
+              <span className="line-clamp-4">
+                <ChatMarkdown
+                  inline
+                  text={thoughtLine}
+                  cwd={ctx.markdownCwd}
+                  parseRawHtml={false}
+                  extraRemarkPlugins={thoughtPreviewPlugins(gt("Thought"))}
+                />
+              </span>
+            }
+            wrapLabel
+          />
+        ) : null}
+        <LiveActivityRow
           label={
-            <span className="line-clamp-4">
+            thoughtIsStatus ? (
+              row.active ? (
+                gt("Thinking")
+              ) : (
+                gt("Thought")
+              )
+            ) : row.entry.itemType === "reasoning" ? (
               <ChatMarkdown
                 inline
-                text={thoughtLine}
+                text={(row.entry.detail ?? label).slice(0, THOUGHT_PREVIEW_SOURCE_MAX_LENGTH)}
                 cwd={ctx.markdownCwd}
                 parseRawHtml={false}
-                extraRemarkPlugins={thoughtPreviewPlugins(gt("Thought"))}
+                extraRemarkPlugins={
+                  row.active
+                    ? thoughtPreviewPlugins(gt("Thinking"))
+                    : thoughtPreviewPlugins(gt("Thought"))
+                }
               />
-            </span>
+            ) : threadLabel ? (
+              <ThreadReadLabel
+                label={threadLabel}
+                environmentId={ctx.activeThreadEnvironmentId}
+                linked={false}
+              />
+            ) : (
+              label
+            )
           }
-          wrapLabel
+          iconName={workEntryIconName(row.entry)}
+          toolIcon={row.entry.toolIcon ?? row.entry.toolSource?.icon}
+          failed={failed}
+          active={row.active}
+        />
+      </button>
+      {liveCommandProjected && liveCommandItem ? (
+        <LiveCommandOutputPreview
+          key={`${liveCommandProjected.sourceThreadId}:${liveCommandProjected.sourceItemId}`}
+          environmentId={ctx.activeThreadEnvironmentId}
+          threadId={liveCommandProjected.sourceThreadId}
+          itemId={liveCommandProjected.sourceItemId}
+          command={liveCommandItem.input}
+          exitCode={liveCommandItem.exitCode}
+          source={ctx.turnItemSource?.commandOutput}
         />
       ) : null}
-      <LiveActivityRow
-        label={
-          thoughtIsStatus ? (
-            row.active ? (
-              gt("Thinking")
-            ) : (
-              gt("Thought")
-            )
-          ) : row.entry.itemType === "reasoning" ? (
-            <ChatMarkdown
-              inline
-              text={(row.entry.detail ?? label).slice(0, THOUGHT_PREVIEW_SOURCE_MAX_LENGTH)}
-              cwd={ctx.markdownCwd}
-              parseRawHtml={false}
-              extraRemarkPlugins={
-                row.active
-                  ? thoughtPreviewPlugins(gt("Thinking"))
-                  : thoughtPreviewPlugins(gt("Thought"))
-              }
-            />
-          ) : threadLabel ? (
-            <ThreadReadLabel
-              label={threadLabel}
-              environmentId={ctx.activeThreadEnvironmentId}
-              linked={false}
-            />
-          ) : (
-            label
-          )
-        }
-        iconName={workEntryIconName(row.entry)}
-        toolIcon={row.entry.toolIcon ?? row.entry.toolSource?.icon}
-        failed={failed}
-        active={row.active}
-      />
-    </button>
+    </div>
   );
 }
 

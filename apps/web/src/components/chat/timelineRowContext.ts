@@ -129,6 +129,7 @@ export const TimelineRowActivityCtx = createContext<TimelineRowActivityState>(nu
 export interface WorkGroupViewState {
   scrollPositions: Map<string, WorkGroupScrollAnchor>;
   expandedEntries: Set<string>;
+  collapsedEntries?: Set<string>;
 }
 
 /** One image the group's agent viewed; `item` is null until its URL resolves. */
@@ -140,6 +141,7 @@ export interface WorkGroupViewedImage {
 export const WorkGroupViewCtx = createContext<{
   state: WorkGroupViewState;
   viewedImages: ReadonlyArray<WorkGroupViewedImage>;
+  autoExpandedEntryId?: string | undefined;
   onToggleEntry: (collapsed: boolean, entryId: string) => void;
   onContentReady?: ((entryId: string) => void) | undefined;
 } | null>(null);

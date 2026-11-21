@@ -5458,5 +5458,11 @@
   "ad208e3e32c85029": "Ocultar todo",
   "3328503592789bed": "Zen",
   "856812e7e1fc445e": "Llamadas a herramientas en el chat",
-  "8d545d54c0a9e950": "Oculta los comandos, ediciones y búsquedas que ejecutan los agentes. Ocultar las correctas mantiene los fallos. Zen solo muestra las respuestas finales. Las aprobaciones, preguntas y errores siempre se muestran."
+  "8d545d54c0a9e950": "Oculta los comandos, ediciones y búsquedas que ejecutan los agentes. Ocultar las correctas mantiene los fallos. Zen solo muestra las respuestas finales. Las aprobaciones, preguntas y errores siempre se muestran.",
+  "038c36cd308b9763": "salida {exitCode}",
+  "90a258fff61fd77e": "Desactivado",
+  "4cd9dae93f5c7d3b": "Al expandir",
+  "83cee9c60d395ea7": "En línea",
+  "883b2b359f0fd25d": "Salida de terminal en vivo",
+  "94ab3082d9cfe225": "Abre automáticamente la salida en vivo del comando activo o más reciente para proveedores que transmiten salida de terminal. «Al expandir» solo la muestra dentro de la actividad expandida; «En línea» también la muestra cuando está contraída."
 }

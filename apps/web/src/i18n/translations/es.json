@@ -12455,5 +12455,11 @@
   "b7df38b7d8792d78": "Abrir guía",
   "9e91e9a77b664e4e": "No se pudo iniciar una guía de revisión",
   "d8aaf932f90429c4": "Mover este comando al principio de la cola ({shortcut})",
-  "425ab15036aec8a4": "Mover este comando al principio de la cola"
+  "425ab15036aec8a4": "Mover este comando al principio de la cola",
+  "4cd9dae93f5c7d3b": "Al expandir",
+  "83cee9c60d395ea7": "En línea",
+  "883b2b359f0fd25d": "Salida de terminal en vivo",
+  "3590a821ac4e6350": "Abre automáticamente la salida en vivo del comando activo o más reciente para proveedores que transmiten salida de terminal. «Al expandir» solo la muestra dentro de la actividad expandida; «En línea» también la muestra cuando está contraída.",
+  "6480ede08c324801": "Restablecer la salida de terminal en vivo al valor predeterminado",
+  "7acb4582fb1c9816": "salida terminal vivo comando transmisión expandido en línea vista previa shell stdout stderr ejecución predeterminado abierto"
 }

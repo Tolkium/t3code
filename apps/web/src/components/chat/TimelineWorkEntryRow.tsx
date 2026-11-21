@@ -224,6 +224,7 @@ type WorkEntryRowProps = {
   workEntry: TimelineWorkEntry;
   workspaceRoot: string | undefined;
   displayLabel?: string | undefined;
+  autoExpanded?: boolean | undefined;
   onToggleEntry?: ((collapsed: boolean) => void) | undefined;
   onContentReady?: (() => void) | undefined;
 };
@@ -298,9 +299,25 @@ function WorkEntryLogRow(props: WorkEntryRowProps) {
       ? notificationChildThreadId(workEntry.projectedItem.item.source)
       : undefined;
   const groupView = use(WorkGroupViewCtx);
-  const [expanded, setExpanded] = useState(
-    () => groupView?.state.expandedEntries.has(workEntry.id) ?? false,
-  );
+  const autoExpanded = groupView
+    ? groupView.autoExpandedEntryId === workEntry.id
+    : props.autoExpanded === true;
+  const readStoredOverride = () =>
+    groupView?.state.expandedEntries.has(workEntry.id)
+      ? true
+      : groupView?.state.collapsedEntries?.has(workEntry.id)
+        ? false
+        : null;
+  const [overrideState, setOverrideState] = useState<{
+    readonly id: string;
+    readonly value: boolean | null;
+  }>(() => ({
+    id: workEntry.id,
+    value: readStoredOverride(),
+  }));
+  const userOverride =
+    overrideState.id === workEntry.id ? overrideState.value : readStoredOverride();
+  const expanded = userOverride ?? autoExpanded;
   const noticeMessage =
     workEntry.structuredPayload?.type === "system_notice"
       ? workEntry.structuredPayload.message
@@ -323,12 +340,17 @@ function WorkEntryLogRow(props: WorkEntryRowProps) {
     const next = !expanded;
     if (groupView) {
       groupView.onToggleEntry(!next, workEntry.id);
-      if (next) groupView.state.expandedEntries.add(workEntry.id);
-      else groupView.state.expandedEntries.delete(workEntry.id);
+      if (next) {
+        groupView.state.expandedEntries.add(workEntry.id);
+        groupView.state.collapsedEntries?.delete(workEntry.id);
+      } else {
+        groupView.state.expandedEntries.delete(workEntry.id);
+        groupView.state.collapsedEntries?.add(workEntry.id);
+      }
     } else {
       props.onToggleEntry?.(!next);
     }
-    setExpanded(next);
+    setOverrideState({ id: workEntry.id, value: next });
   };
   const failureItem = workEntry.projectedItem?.item;
   const pendingApproval =

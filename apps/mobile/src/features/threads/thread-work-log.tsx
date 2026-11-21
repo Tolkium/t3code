@@ -10,7 +10,12 @@ import {
 } from "./work-log-layout";
 import { QuestionAnswerHistory } from "./QuestionAnswerHistory";
 import { McpSignInSheet, type McpSignInTarget } from "./McpSignInSheet";
-import { ThreadCommandOutput, useCommandOutputStreaming } from "./thread-command-output";
+import {
+  ThreadCommandOutput,
+  ThreadLiveCommandOutputPreview,
+  useCommandOutputStreaming,
+} from "./thread-command-output";
+import type { LiveCommandOutputMode } from "@t3tools/contracts/settings";
 import {
   getQuestionAnswerPreview,
   hasQuestionAnswer,
@@ -475,22 +480,51 @@ interface ThreadWorkLogProps {
   readonly iconSubtleColor: ColorValue;
   readonly edgeFadeColor: string;
   readonly themeAppearance: "light" | "dark";
+  readonly liveCommandOutputMode?: LiveCommandOutputMode;
   readonly onCopyRow: (rowId: string, value: string) => void;
   /** `groupId` is the group a lone call stands in for; it opens and closes with the row. */
-  readonly onToggleRow: (rowId: string, anchorKey: string, groupId?: string) => void;
+  readonly onToggleRow: (
+    rowId: string,
+    anchorKey: string,
+    groupId?: string,
+    currentlyExpanded?: boolean,
+  ) => void;
   readonly renderImage: MarkdownImageRenderer;
   readonly renderReasoning: (text: string) => ReactNode;
   readonly onPressPreview: (source: FilePreviewSource) => void;
 }
 
+function resolveAutoExpandedActivityId(
+  activities: ReadonlyArray<ThreadFeedActivity>,
+  mode: LiveCommandOutputMode,
+): string | undefined {
+  if (mode === "off") return undefined;
+  // A lone collapsed live command only auto-opens in "inline" mode.
+  if (activities.length === 1 && activities[0]?.live && !activities[0]?.groupedToolDetail) {
+    return mode === "inline" && activities[0].projectedItem.item.type === "command_execution"
+      ? activities[0].id
+      : undefined;
+  }
+  const running = activities.findLast(
+    (row) =>
+      row.projectedItem.item.type === "command_execution" && row.lifecycleStatus === "inProgress",
+  );
+  if (running) return running.id;
+  return activities.findLast((row) => row.projectedItem.item.type === "command_execution")?.id;
+}
+
 export function ThreadWorkLog(props: ThreadWorkLogProps) {
+  const autoExpandedRowId = resolveAutoExpandedActivityId(
+    props.activities,
+    props.liveCommandOutputMode ?? "off",
+  );
   const renderRow = (row: ThreadFeedActivity) => (
     <ThreadWorkLogRow
       key={row.id}
       row={row}
       anchorKey={props.anchorKey}
       copied={props.copiedRowId === row.id}
-      expanded={props.expandedRows[row.id] ?? false}
+      expanded={props.expandedRows[row.id] ?? row.id === autoExpandedRowId}
       environmentId={props.environmentId}
       iconSubtleColor={props.iconSubtleColor}
       onCopyRow={props.onCopyRow}
@@ -1132,7 +1166,7 @@ const ThreadWorkLogRow = function ThreadWorkLogRow(
           }
           if (canExpand) {
             void Haptics.selectionAsync();
-            props.onToggleRow(row.id, props.anchorKey, row.groupStandIn?.groupId);
+            props.onToggleRow(row.id, props.anchorKey, row.groupStandIn?.groupId, expanded);
           }
         }}
         onLongPress={() => props.onCopyRow(row.id, row.getCopyText())}
@@ -1413,10 +1447,19 @@ export function ThreadWorkGroupToggle(props: {
   readonly hasFailure: boolean;
   readonly shimmer: boolean;
   readonly thought?: string | undefined;
+  readonly liveCommand?: ThreadFeedActivity | undefined;
+  readonly liveCommandOutputMode?: LiveCommandOutputMode;
   readonly trailing?: ReactNode;
   readonly onToggle: () => void;
 }) {
   const gt = useGT();
+  const streamsOutput = useCommandOutputStreaming(props.environmentId);
+  const liveCommandProjected =
+    props.liveCommandOutputMode === "inline" && !props.expanded && streamsOutput
+      ? props.liveCommand?.projectedItem
+      : undefined;
+  const liveCommandItem =
+    liveCommandProjected?.item.type === "command_execution" ? liveCommandProjected.item : undefined;
   const statusLabel = props.hasFailure
     ? gt("{preview}, tool call failed", { preview: props.summary })
     : props.summary;
@@ -1505,6 +1548,17 @@ export function ThreadWorkGroupToggle(props: {
         </View>
         {props.trailing}
       </View>
+      {liveCommandProjected && liveCommandItem ? (
+        <ThreadLiveCommandOutputPreview
+          key={`${liveCommandProjected.sourceThreadId}:${liveCommandProjected.sourceItemId}`}
+          environmentId={props.environmentId}
+          threadId={liveCommandProjected.sourceThreadId}
+          itemId={liveCommandProjected.sourceItemId}
+          command={liveCommandItem.input}
+          exitCode={liveCommandItem.exitCode}
+          themeAppearance={props.themeAppearance}
+        />
+      ) : null}
     </WorkLogBlock>
   );
 }

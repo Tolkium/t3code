@@ -32,13 +32,7 @@ export function ThreadCommandOutput(props: {
       input: { threadId: props.threadId, itemId: props.itemId },
     }),
   );
-  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
-  const followRef = useRef(true);
   const text = data?.output.text ?? "";
-  const spans = useMemo(
-    () => terminalOutputSpans(text, TERMINAL_PALETTES[props.themeAppearance]),
-    [text, props.themeAppearance],
-  );
   if (text.length === 0) {
     const message = error
       ? gt("Couldn't load output: {error}", { error })
@@ -54,13 +48,37 @@ export function ThreadCommandOutput(props: {
     );
   }
   return (
-    <View className="pt-1.5">
+    <CommandOutputScrollView
+      text={text}
+      truncated={data?.output.truncated ?? false}
+      themeAppearance={props.themeAppearance}
+      className="pt-1.5"
+      scrollClassName="max-h-60"
+    />
+  );
+}
+
+function CommandOutputScrollView(props: {
+  readonly text: string;
+  readonly truncated: boolean;
+  readonly themeAppearance: "light" | "dark";
+  readonly className?: string;
+  readonly scrollClassName: string;
+}) {
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
+  const followRef = useRef(true);
+  const spans = useMemo(
+    () => terminalOutputSpans(props.text, TERMINAL_PALETTES[props.themeAppearance]),
+    [props.text, props.themeAppearance],
+  );
+  return (
+    <View className={props.className}>
       <ScrollView
         ref={scrollRef}
         nestedScrollEnabled
         directionalLockEnabled
         showsVerticalScrollIndicator
-        className="max-h-60"
+        className={props.scrollClassName}
         contentContainerStyle={{ paddingRight: 8 }}
         scrollEventThrottle={100}
         onScroll={(event) => {
@@ -72,7 +90,7 @@ export function ThreadCommandOutput(props: {
           if (followRef.current) scrollRef.current?.scrollToEnd({ animated: false });
         }}
       >
-        {data?.output.truncated ? (
+        {props.truncated ? (
           <Text className="pb-0.5 text-3xs text-foreground-subtle">
             <T>Earlier output not shown</T>
           </Text>
@@ -91,6 +109,61 @@ export function ThreadCommandOutput(props: {
           )}
         </Text>
       </ScrollView>
+    </View>
+  );
+}
+
+/**
+ * Compact inline preview of the active or latest command's live output under the live activity row.
+ * Renders nothing while empty or loading so silent commands and non-streaming providers add no box.
+ */
+export function ThreadLiveCommandOutputPreview(props: {
+  readonly environmentId: EnvironmentId;
+  readonly threadId: ThreadId;
+  readonly itemId: TurnItemId;
+  readonly command?: string | undefined;
+  readonly exitCode?: number | undefined;
+  readonly themeAppearance: "light" | "dark";
+}) {
+  const gt = useGT();
+  const { data } = useEnvironmentQuery(
+    orchestrationEnvironment.v2.commandOutput({
+      environmentId: props.environmentId,
+      input: { threadId: props.threadId, itemId: props.itemId },
+    }),
+  );
+  const text = data?.output.text ?? "";
+  if (text.length === 0) return null;
+
+  const trimmedCommand = props.command?.trim();
+
+  return (
+    <View className="ml-7 mt-1 overflow-hidden rounded-md border border-border bg-subtle/40">
+      {trimmedCommand ? (
+        <View className="border-b border-border/60 px-2.5 py-1">
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            className="font-mono text-2xs leading-normal text-foreground"
+          >
+            $ {trimmedCommand.replace(/\s+/g, " ")}
+          </Text>
+        </View>
+      ) : null}
+      <CommandOutputScrollView
+        text={text}
+        truncated={data?.output.truncated ?? false}
+        themeAppearance={props.themeAppearance}
+        className="px-2.5 py-1.5"
+        scrollClassName="max-h-48"
+      />
+      {props.exitCode !== undefined && props.exitCode !== 0 ? (
+        <View className="border-t border-border/60 px-2.5 py-1">
+          <Text className="font-mono text-2xs text-adaptive-rose-600-400">
+            {gt("exit {exitCode}", { exitCode: props.exitCode })}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }

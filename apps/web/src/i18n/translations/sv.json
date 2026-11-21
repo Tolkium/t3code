@@ -12467,5 +12467,11 @@
   "b7df38b7d8792d78": "Öppna guiden",
   "9e91e9a77b664e4e": "Kunde inte starta en granskningsguide",
   "d8aaf932f90429c4": "Flytta det här kommandot först i kön ({shortcut})",
-  "425ab15036aec8a4": "Flytta det här kommandot först i kön"
+  "425ab15036aec8a4": "Flytta det här kommandot först i kön",
+  "4cd9dae93f5c7d3b": "När expanderad",
+  "83cee9c60d395ea7": "Infogad",
+  "883b2b359f0fd25d": "Live-terminalutdata",
+  "3590a821ac4e6350": "Öppnar automatiskt strömmande utdata från det aktiva eller senaste kommandot för leverantörer som strömmar terminalutdata. ”När expanderad” visar den bara i expanderad aktivitet; ”Infogad” visar den även när den är ihopfälld.",
+  "6480ede08c324801": "Återställ live-terminalutdata till standard",
+  "7acb4582fb1c9816": "live terminal kommando utdata ström expanderad infogad förhandsvisning skal stdout stderr körs standard öppen"
 }

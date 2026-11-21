@@ -242,6 +242,7 @@ type ThreadFeedEntryContent =
       readonly live: boolean;
       readonly shimmer: boolean;
       readonly thought?: string;
+      readonly liveCommand?: ThreadFeedActivity;
     }
   | {
       /** Images the agent opened in the tool group above, kept visible while the group is collapsed. */
@@ -2351,6 +2352,21 @@ function appendToolGroupRows(
   const summaryToolIcon = live
     ? resolveWorkEntryToolPresentation(latestActivity.workEntry, undefined, resolve)?.icon
     : undefined;
+  const liveCommand =
+    live && !expanded
+      ? latestActivity.projectedItem.item.type === "command_execution"
+        ? latestActivity
+        : latestActivity.workEntry.itemType === "reasoning"
+          ? (() => {
+              const lastNonReasoning = activities.findLast(
+                (activity) => activity.workEntry.itemType !== "reasoning",
+              );
+              return lastNonReasoning?.projectedItem.item.type === "command_execution"
+                ? lastNonReasoning
+                : undefined;
+            })()
+          : undefined
+      : undefined;
   result.push({
     type: "work-toggle",
     id,
@@ -2367,6 +2383,7 @@ function appendToolGroupRows(
     ...(groupToolIcon ? { toolIcon: groupToolIcon } : {}),
     ...(summaryToolIcon ? { summaryToolIcon } : {}),
     ...(thought ? { thought } : {}),
+    ...(liveCommand ? { liveCommand } : {}),
     hasFailure: (() => {
       const lastToolLike = activities.findLast((activity) => activity.toolLike);
       return (

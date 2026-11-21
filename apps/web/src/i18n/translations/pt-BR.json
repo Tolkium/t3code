@@ -12460,5 +12460,11 @@
   "b7df38b7d8792d78": "Abrir guia",
   "9e91e9a77b664e4e": "Não foi possível iniciar um guia de revisão",
   "d8aaf932f90429c4": "Mover este comando para o início da fila ({shortcut})",
-  "425ab15036aec8a4": "Mover este comando para o início da fila"
+  "425ab15036aec8a4": "Mover este comando para o início da fila",
+  "4cd9dae93f5c7d3b": "Quando expandido",
+  "83cee9c60d395ea7": "Em linha",
+  "883b2b359f0fd25d": "Saída de terminal ao vivo",
+  "3590a821ac4e6350": "Abre automaticamente a saída em tempo real do comando ativo ou mais recente para provedores que transmitem saída de terminal. «Quando expandido» só mostra dentro da atividade expandida; «Em linha» também mostra quando recolhida.",
+  "6480ede08c324801": "Restaurar saída de terminal ao vivo para o padrão",
+  "7acb4582fb1c9816": "saída terminal ao vivo comando transmissão expandido em linha prévia shell stdout stderr executando padrão aberto"
 }

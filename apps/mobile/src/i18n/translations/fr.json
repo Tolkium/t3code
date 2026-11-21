@@ -5458,5 +5458,11 @@
   "ad208e3e32c85029": "Tout masquer",
   "3328503592789bed": "Zen",
   "856812e7e1fc445e": "Appels d’outils dans la discussion",
-  "8d545d54c0a9e950": "Masque les commandes, modifications et recherches lancées par les agents. Masquer les réussis garde les échecs. Zen n’affiche que les réponses finales. Les approbations, questions et erreurs s’affichent toujours."
+  "8d545d54c0a9e950": "Masque les commandes, modifications et recherches lancées par les agents. Masquer les réussis garde les échecs. Zen n’affiche que les réponses finales. Les approbations, questions et erreurs s’affichent toujours.",
+  "038c36cd308b9763": "code {exitCode}",
+  "90a258fff61fd77e": "Désactivé",
+  "4cd9dae93f5c7d3b": "Lorsque développé",
+  "83cee9c60d395ea7": "En ligne",
+  "883b2b359f0fd25d": "Sortie terminal en direct",
+  "94ab3082d9cfe225": "Ouvre automatiquement la sortie en direct de la commande active ou la plus récente pour les fournisseurs qui diffusent la sortie du terminal. « Lorsque développé » ne l’affiche que dans l’activité développée ; « En ligne » l’affiche aussi lorsqu’elle est repliée."
 }
